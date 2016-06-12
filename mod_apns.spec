@@ -1,0 +1,5 @@
+author: "mrDoctorWho <mrdoctorwho@gmail.com>"
+category: "service"
+summary: "An ejabberd module to send PUSH messages to iOS devices through APNS"
+home: "https://github.com/kirillzh/ejabberd_mod_apns/tree/master"
+url: "git@github.com:kirillzh/ejabberd_mod_apns.git"
