@@ -126,7 +126,7 @@ iq(#jid{user = User, server = Server}, _, #iq{sub_el = SubEl} = IQ) ->
 
 	F = fun() -> mnesia:write(#apns_users{user={LUser, LServer}, token=Token, last_seen=TimeStamp}) end,
 
-	case mnesia:dirty_read(apns_users, {LUser, LServer}) of
+	case catch mnesia:dirty_read(apns_users, {LUser, LServer}) of
 		[] ->
 			mnesia:transaction(F),
 			?DEBUG("mod_apns: New user registered ~s@~s", [LUser, LServer]);
