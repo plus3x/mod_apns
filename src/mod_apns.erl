@@ -90,28 +90,25 @@ message(From, To, Packet) ->
 			%% Checking subscription
 			{Subscription, _Groups} = 
 				ejabberd_hooks:run_fold(roster_get_jid_info, ToServer, {none, []}, [ToUser, ToServer, From]),
-			case Subscription of
-				both ->
-					case Body of
-						<<>> -> ok;
-						_ ->
-							Result = mnesia:dirty_read(apns_users, {ToUser, ToServer}),
-							case Result of 
-								[] ->
-									?DEBUG("mod_apns: No such record found for ~s", [JTo]);
+				case Body of
+					<<>> -> ok;
+					_ ->
+						Result = mnesia:dirty_read(apns_users, {ToUser, ToServer}),
+						case Result of 
+							[] ->
+								?DEBUG("mod_apns: No such record found for ~s", [JTo]);
 
-								[#apns_users{token = Token}] ->
-									Sound = "default",
-									%% TODO: Move binary_to_list to create_pair?
-									%% Badges?
-									Msg = [{alert, binary_to_list(Body)}, {sound, Sound}],
-									Args = [{source, binary_to_list(JFrom)}, {destination, binary_to_list(JTo)}],
-									JSON = create_json(Msg, Args),
-									send_payload(ToServer, JSON, Token)
-							end
-						end;
-					_ -> ok
-			end
+							[#apns_users{token = Token}] ->
+								Sound = "default",
+								%% TODO: Move binary_to_list to create_pair?
+								%% Badges?
+								Msg = [{alert, binary_to_list(Body)}, {sound, Sound}],
+								Args = [{source, binary_to_list(JFrom)}, {destination, binary_to_list(JTo)}],
+								JSON = create_json(Msg, Args),
+								send_payload(ToServer, JSON, Token)
+						end
+					end;
+				_ -> ok
 	end.
 
 
