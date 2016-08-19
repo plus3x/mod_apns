@@ -90,14 +90,12 @@ message(From, To, Packet) ->
 			%% Checking subscription
 			{Subscription, _Groups} = 
 				ejabberd_hooks:run_fold(roster_get_jid_info, ToServer, {none, []}, [ToUser, ToServer, From]),
-				case Body of
+				case catch Body of
 					<<>> -> ok;
 					_ ->
 						Result = mnesia:dirty_read(apns_users, {ToUser, ToServer}),
-						case Result of 
-							[] ->
-								?DEBUG("mod_apns: No such record found for ~s", [JTo]);
-
+						case catch Result of 
+							[] -> ?DEBUG("mod_apns: No such record found for ~s", [JTo]);
 							[#apns_users{token = Token}] ->
 								Sound = "default",
 								%% TODO: Move binary_to_list to create_pair?
