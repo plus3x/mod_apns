@@ -39,7 +39,7 @@ send_payload(Host, Payload, Token) ->
 
 	case ssl:connect(Address, Port, Options, ?Timeout) of
 		{ok, Socket} ->
-			PayloadBin = list_to_binary(mochijson2:encode(Payload)),
+			PayloadBin = list_to_binary(Payload),
 			PayloadLength = size(PayloadBin),
 			TokenNum = erlang:binary_to_integer(Token, 16),
 			TokenBin = <<TokenNum:32/integer-unit:8>>,
@@ -67,7 +67,7 @@ create_keyvalue([Head]) ->
 	create_pair(Head);
 create_keyvalue([Head|Tail]) ->
 	lists:append([create_pair(Head), ",", create_keyvalue(Tail)]).
-
+ 
 create_pair({Key, Value}) ->
 	lists:append([add_quotes(atom_to_list(Key)), ":", add_quotes(Value)]).
 add_quotes(String) ->
@@ -77,7 +77,7 @@ add_quotes(String) ->
 message(From, To, Packet) ->
 	Type = fxml:get_tag_attr_s(<<"type">>, Packet),
 	?DEBUG("Offline message", []),
-	case Type of
+	case Type of 
 		"normal" -> ok;
 		_ ->
 			%% Strings
@@ -88,13 +88,13 @@ message(From, To, Packet) ->
 			Body = fxml:get_path_s(Packet, [{elem, <<"body">>}, cdata]),
 
 			%% Checking subscription
-			{Subscription, _Groups} =
+			{Subscription, _Groups} = 
 				ejabberd_hooks:run_fold(roster_get_jid_info, ToServer, {none, []}, [ToUser, ToServer, From]),
 				case catch Body of
 					<<>> -> ok;
 					_ ->
 						Result = mnesia:dirty_read(apns_users, {ToUser, ToServer}),
-						case catch Result of
+						case catch Result of 
 							[] -> ?DEBUG("mod_apns: No such record found for ~s", [JTo]);
 							[#apns_users{token = Token}] ->
 								Sound = "default",
@@ -136,11 +136,11 @@ iq(#jid{user = User, server = Server}, _, #iq{sub_el = SubEl} = IQ) ->
 			mnesia:transaction(F),
 			?DEBUG("mod_apns: Updating token for user ~s@~s", [LUser, LServer])
 		end,
-
+	
 	IQ#iq{type=result, sub_el=[]}. %% We don't need the result, but the handler has to send something.
 
 
-start(Host, _) ->
+start(Host, _) -> 
 	crypto:start(),
 	ssl:start(),
 	mnesia:create_table(apns_users, [{disc_copies, [node()]}, {attributes, record_info(fields, apns_users)}]),
