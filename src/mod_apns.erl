@@ -39,7 +39,12 @@ send_payload(Host, Payload, Token) ->
 
 	case ssl:connect(Address, Port, Options, ?Timeout) of
 		{ok, Socket} ->
-			PayloadBin = list_to_binary(Payload),
+			?DEBUG("mod_apns: Pure payload: '~p'", [Payload]),
+
+			PayloadBin = list_to_binary(re:replace(Payload, "\n", " ", [global, {return, list}])),
+
+			?DEBUG("mod_apns: Payload binary: '~p'", [PayloadBin]),
+
 			PayloadLength = size(PayloadBin),
 			TokenNum = erlang:binary_to_integer(Token, 16),
 			TokenBin = <<TokenNum:32/integer-unit:8>>,
